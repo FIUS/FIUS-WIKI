@@ -1,14 +1,38 @@
 ARG APP_PATH=/opt/outline
-ARG BASE_IMAGE=outlinewiki/outline-base
-FROM ${BASE_IMAGE} AS base
+
+# ------------------------------------------------------------------------------
+# 1. Base / Builder Stage
+# ------------------------------------------------------------------------------
+FROM node:26.3.0 AS base
 
 ARG APP_PATH
 WORKDIR $APP_PATH
 
-# ---
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY patches ./patches
+
+RUN apt-get update && apt-get install -y cmake
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
+RUN npm install -g corepack && corepack enable
+RUN yarn install --immutable --network-timeout 1000000 && \
+  yarn cache clean
+
+COPY . .
+ARG CDN_URL
+RUN yarn build
+
+RUN yarn workspaces focus --production && \
+  yarn cache clean
+
+ENV PORT=3000
+
+# ------------------------------------------------------------------------------
+# 2. Production Runner Stage
+# ------------------------------------------------------------------------------
 FROM node:26.3.0-slim AS runner
 
-LABEL org.opencontainers.image.source="https://github.com/outline/outline"
+LABEL org.opencontainers.image.source="https://github.com/FIUS/FIUS-WIKI"
 
 ARG APP_PATH
 WORKDIR $APP_PATH
