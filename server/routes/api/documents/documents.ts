@@ -3,7 +3,7 @@ import fractionalIndex from "fractional-index";
 import fs from "fs-extra";
 import invariant from "invariant";
 import contentDisposition from "content-disposition";
-import Router from "koa-router";
+import Router from "@koa/router";
 import { escapeRegExp, has, remove, uniq } from "es-toolkit/compat";
 import mime from "mime-types";
 import type { Order, ScopeOptions, WhereOptions } from "sequelize";
@@ -630,10 +630,21 @@ router.post(
           required: true,
           where: {
             teamId: user.teamId,
-            [Op.or]: [
-              { collectionId: collectionIds },
-              { id: membershipDocumentIds },
-              { createdById: userId, collectionId: { [Op.is]: null } },
+            [Op.and]: [
+              {
+                [Op.or]: [
+                  { collectionId: collectionIds },
+                  { id: membershipDocumentIds },
+                  { createdById: userId, collectionId: { [Op.is]: null } },
+                ],
+              },
+              {
+                [Op.or]: [
+                  { publishedAt: { [Op.ne]: null } },
+                  { createdById: userId },
+                  { id: membershipDocumentIds },
+                ],
+              },
             ],
           },
         },
@@ -1044,7 +1055,7 @@ router.post(
     const extension =
       contentType === "text/markdown" ? "md" : mime.extension(contentType);
 
-    const fileName = slugify(document.titleWithDefault);
+    const fileName = slugify(document.displayTitle);
     const attachmentIds = ProsemirrorHelper.parseAttachmentIds(
       DocumentHelper.toProsemirror(document)
     );
