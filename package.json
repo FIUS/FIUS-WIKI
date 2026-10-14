@@ -109,8 +109,8 @@
     "@radix-ui/react-toolbar": "^1.1.19",
     "@radix-ui/react-tooltip": "^1.2.16",
     "@radix-ui/react-visually-hidden": "^1.2.11",
-    "@sentry/node": "^10.76.0",
-    "@sentry/react": "^10.76.0",
+    "@sentry/node": "^10.76.2",
+    "@sentry/react": "^10.76.2",
     "@simplewebauthn/browser": "^13.3.0",
     "@simplewebauthn/server": "^13.3.3",
     "@socket.io/redis-adapter": "^8.3.0",
@@ -276,7 +276,7 @@
     "y-protocols": "^1.0.7",
     "yauzl": "^3.3.1",
     "yazl": "^3.3.1",
-    "yjs": "^13.6.32",
+    "yjs": "^13.6.33",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -344,7 +344,7 @@
     "lint-staged": "^16.4.0",
     "msw": "^2.15.0",
     "nodemon": "^3.1.14",
-    "oxfmt": "0.66.0",
+    "oxfmt": "0.72.0",
     "oxlint": "1.81.0",
     "oxlint-tsgolint": "7.0.2001",
     "postinstall-postinstall": "^2.1.0",
