@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { SidebarSection, UserPreference } from "@shared/types";
+import { DynamicCalendarIcon } from "@shared/components/DynamicCalendarIcon";
 import { metaDisplay } from "@shared/utils/keyboard";
 import Scrollable from "~/components/Scrollable";
 import { navigateToImport } from "~/actions/definitions/navigation";
@@ -19,7 +20,7 @@ import usePolicy from "~/hooks/usePolicy";
 import useStores from "~/hooks/useStores";
 import TeamMenu from "~/menus/TeamMenu";
 import * as Scenes from "~/routes/scenes";
-import { homePath, searchPath } from "~/utils/routeHelpers";
+import { calendarPath, homePath, searchPath } from "~/utils/routeHelpers";
 import TeamLogo from "../TeamLogo";
 import Tooltip from "../Tooltip";
 import Sidebar from "./Sidebar";
@@ -73,7 +74,7 @@ function AppSidebar() {
   const [scrollArea, setScrollArea] = useState<HTMLElement | null>(null);
 
   const sectionOrder = normalizeSidebarSectionOrder(
-    user.getPreference(UserPreference.SidebarSectionOrder, [])
+    user.getPreference(UserPreference.SidebarSectionOrder, []),
   );
 
   const sectionContent = {
@@ -124,6 +125,13 @@ function AppSidebar() {
               exact={false}
               label={t("Home")}
               onClickIntent={Scenes.Home.preload}
+            />
+            <SidebarLink
+              to={calendarPath()}
+              icon={<DynamicCalendarIcon day={new Date().getDate()} />}
+              exact={false}
+              label={t("Calendar")}
+              onClickIntent={Scenes.Calendar.preload}
             />
             <SidebarLink
               to={searchPath()}

@@ -223,3 +223,12 @@ export const EmojiValidation = {
   /* the characters allowed in the name */
   allowedNameCharacters: /^[a-z0-9_]*$/,
 };
+
+export const CalendarEventValidation = {
+  /** The maximum length of the title */
+  maxTitleLength: 255,
+
+  /** The maximum length of the description */
+  maxDescriptionLength: 10_000,
+};
+

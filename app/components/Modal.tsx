@@ -258,7 +258,10 @@ const Wrapper = styled.div<{
   margin-left: auto;
   width: 75vw;
   min-width: 350px;
-  max-width: ${(props) => props.$width || "450px"};
+  max-width: ${(props) =>
+    typeof props.$width === "number"
+      ? `${props.$width}px`
+      : props.$width || "450px"};
   max-height: ${(props) =>
     props.$height ? maxModalHeight(props.$height) : "70vh"};
   z-index: ${depths.modal};

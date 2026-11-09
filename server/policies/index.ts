@@ -2,6 +2,7 @@ export * from "./cancan";
 
 import "./apiKey";
 import "./attachment";
+import "./calendarEvent";
 import "./authenticationProvider";
 import "./collection";
 import "./comment";

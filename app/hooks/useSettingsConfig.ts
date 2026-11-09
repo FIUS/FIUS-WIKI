@@ -17,6 +17,7 @@ import {
   InternetIcon,
   SmileyIcon,
   BrowserIcon,
+  CalendarIcon,
 } from "outline-icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,6 +50,9 @@ const Shares = lazy(() => import("~/scenes/Settings/Shares"));
 const Templates = lazy(() => import("~/scenes/Settings/Templates"));
 const CustomEmojis = lazy(() => import("~/scenes/Settings/CustomEmojis"));
 const Embeds = lazy(() => import("~/scenes/Settings/Embeds"));
+const CalendarSettings = lazy(
+  () => import("~/scenes/Settings/CalendarSettings")
+);
 
 export type ConfigItem = {
   name: string;
@@ -170,6 +174,15 @@ const useSettingsConfig = () => {
         enabled: can.readTemplate,
         group: t("Workspace"),
         icon: ShapesIcon,
+      },
+      {
+        name: t("Calendar"),
+        path: settingsPath("calendar"),
+        component: CalendarSettings.Component,
+        preload: CalendarSettings.preload,
+        enabled: can.update,
+        group: t("Workspace"),
+        icon: CalendarIcon,
       },
       {
         name: t("Emojis"),

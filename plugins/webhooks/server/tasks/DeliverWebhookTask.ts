@@ -323,6 +323,9 @@ export default class DeliverWebhookTask extends BaseTask<Props> {
       case "passkeys.create":
       case "passkeys.update":
       case "passkeys.delete":
+      case "calendarEvents.create":
+      case "calendarEvents.update":
+      case "calendarEvents.delete":
         // Ignored
         return;
       default:
