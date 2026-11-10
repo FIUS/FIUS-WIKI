@@ -1,7 +1,4 @@
-import type {
-  InferAttributes,
-  InferCreationAttributes,
-} from "sequelize";
+import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import {
   DataType,
   Column,

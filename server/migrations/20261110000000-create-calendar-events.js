@@ -103,17 +103,13 @@ module.exports = {
         { transaction }
       );
 
-      await queryInterface.addIndex(
-        "calendar_events",
-        ["teamId", "startAt"],
-        { transaction }
-      );
+      await queryInterface.addIndex("calendar_events", ["teamId", "startAt"], {
+        transaction,
+      });
 
-      await queryInterface.addIndex(
-        "calendar_events",
-        ["teamId", "endAt"],
-        { transaction }
-      );
+      await queryInterface.addIndex("calendar_events", ["teamId", "endAt"], {
+        transaction,
+      });
 
       await queryInterface.addIndex("calendar_events", ["documentId"], {
         transaction,

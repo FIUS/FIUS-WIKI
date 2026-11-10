@@ -16,6 +16,13 @@ import { client } from "~/utils/ApiClient";
 import Store from "./base/Store";
 import type RootStore from "./RootStore";
 
+export interface CaldavSyncResult {
+  imported: number;
+  updated: number;
+  pushed?: number;
+  deleted?: number;
+}
+
 export default class CalendarEventsStore extends Store<CalendarEvent> {
   @observable
   public settings: CalendarWorkspaceSettings = DEFAULT_CALENDAR_SETTINGS;
@@ -52,7 +59,7 @@ export default class CalendarEventsStore extends Store<CalendarEvent> {
   }
 
   /**
-   * Updates workspace calendar settings and categories (admin only).
+   * Updates workspace calendar settings, categories, and CalDAV connections (admin only).
    *
    * @param nextSettings The updated calendar workspace settings.
    * @returns A promise resolving to the saved settings.
@@ -73,6 +80,20 @@ export default class CalendarEventsStore extends Store<CalendarEvent> {
       defaultViewMode: nextSettings.defaultViewMode,
       allowCustomTags: nextSettings.allowCustomTags,
       enableCaldavFeeds: nextSettings.enableCaldavFeeds,
+      caldavConnections: (nextSettings.caldavConnections ?? []).map((conn) => ({
+        id: conn.id,
+        name: conn.name,
+        url: conn.url,
+        username: conn.username ?? null,
+        password: conn.password ?? null,
+        defaultColor: conn.defaultColor,
+        defaultTags: [...conn.defaultTags],
+        syncDirection: conn.syncDirection,
+        enabled: conn.enabled,
+        lastSyncedAt: conn.lastSyncedAt ?? null,
+        lastSyncStatus: conn.lastSyncStatus ?? null,
+        syncedEventIds: conn.syncedEventIds ?? [],
+      })),
     });
     const saved = (res?.data ?? nextSettings) as CalendarWorkspaceSettings;
     runInAction(() => {
@@ -80,6 +101,92 @@ export default class CalendarEventsStore extends Store<CalendarEvent> {
       this.isSettingsLoaded = true;
     });
     return saved;
+  }
+
+  /**
+   * Imports an `.ics` file/stream into the workspace calendar and maps its tags & color.
+   *
+   * @param params The `.ics` content and optional default tags/color mapping.
+   * @returns A promise resolving to the import statistics.
+   */
+  @action
+  public async importIcs({
+    icsContent,
+    defaultTags,
+    defaultColor,
+  }: {
+    icsContent: string;
+    defaultTags?: string[];
+    defaultColor?: string;
+  }): Promise<CaldavSyncResult> {
+    const res = await client.post(`/${this.apiEndpoint}.import_ics`, {
+      icsContent,
+      defaultTags,
+      defaultColor,
+    });
+
+    const stats = (res as unknown as { stats?: CaldavSyncResult })?.stats ?? {
+      imported: 0,
+      updated: 0,
+    };
+
+    runInAction(() => {
+      if (res?.policies) {
+        this.addPolicies(res.policies);
+      }
+      if (Array.isArray(res?.data)) {
+        for (const item of res.data as PartialExcept<CalendarEvent, "id">[]) {
+          this.add(item);
+        }
+      }
+    });
+
+    return stats;
+  }
+
+  /**
+   * Synchronizes one or all configured CalDAV connections with the workspace calendar.
+   *
+   * @param connectionId Optional specific CalDAV connection ID to sync.
+   * @returns A promise resolving to the sync statistics.
+   */
+  @action
+  public async syncCaldav(connectionId?: string): Promise<CaldavSyncResult> {
+    const res = await client.post(
+      `/${this.apiEndpoint}.sync_caldav`,
+      connectionId ? { connectionId } : {}
+    );
+
+    const typedRes = res as unknown as {
+      data?: PartialExcept<CalendarEvent, "id">[];
+      policies?: typeof res.policies;
+      settings?: CalendarWorkspaceSettings;
+      stats?: CaldavSyncResult;
+    };
+
+    runInAction(() => {
+      if (typedRes?.policies) {
+        this.addPolicies(typedRes.policies);
+      }
+      if (Array.isArray(typedRes?.data)) {
+        for (const item of typedRes.data) {
+          this.add(item);
+        }
+      }
+      if (typedRes?.settings) {
+        this.settings = typedRes.settings;
+        this.isSettingsLoaded = true;
+      }
+    });
+
+    return (
+      typedRes?.stats ?? {
+        imported: 0,
+        updated: 0,
+        pushed: 0,
+        deleted: 0,
+      }
+    );
   }
 
   /**

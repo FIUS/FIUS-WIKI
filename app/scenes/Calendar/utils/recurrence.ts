@@ -219,4 +219,3 @@ export function getDayScheduleGroups(
 
   return groups;
 }
-

@@ -107,7 +107,9 @@ const SettingsLink = styled(Link)`
   border-radius: 6px;
   color: ${({ theme }) => theme.textSecondary};
   text-decoration: none;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 
   &:hover {
     color: ${({ theme }) => theme.text};
@@ -166,11 +168,7 @@ const CheckboxBox = styled.span<{
     ${({ $checked, $indeterminate, $color, theme }) =>
       $checked || $indeterminate ? $color : theme.inputBorder};
   background: ${({ $checked, $indeterminate, $color }) =>
-    $checked
-      ? $color
-      : $indeterminate
-        ? `${$color}30`
-        : "transparent"};
+    $checked ? $color : $indeterminate ? `${$color}30` : "transparent"};
   color: #ffffff;
   flex-shrink: 0;
   transition: all 120ms ease;
@@ -215,8 +213,7 @@ const TagTogglePill = styled.button<{ $active: boolean; $color: string }>`
   font-weight: ${({ $active }) => ($active ? 600 : 500)};
   cursor: pointer;
   border: 1px solid
-    ${({ $active, $color, theme }) =>
-      $active ? `${$color}60` : theme.divider};
+    ${({ $active, $color, theme }) => ($active ? `${$color}60` : theme.divider)};
   background: ${({ $active, $color, theme }) =>
     $active ? `${$color}18` : theme.backgroundSecondary};
   color: ${({ $active, $color, theme }) =>
@@ -275,25 +272,22 @@ export function CalendarCategoriesSidebar({
     id: string,
     name: string,
     color: string,
-    tags: string[]
+    tags: string[],
   ) => {
     const visibleCount = tags.filter(
-      (tag) => !hiddenTags.has(tag.toLowerCase())
+      (tag) => !hiddenTags.has(tag.toLowerCase()),
     ).length;
     const allVisible = tags.length > 0 && visibleCount === tags.length;
     const someVisible = visibleCount > 0 && visibleCount < tags.length;
 
     const categoryEventCount = tags.reduce(
       (sum, tag) => sum + (tagCounts.get(tag.toLowerCase()) ?? 0),
-      0
+      0,
     );
 
     return (
       <CategoryGroup key={id}>
-        <CategoryToggleRow
-          type="button"
-          onClick={() => onToggleCategory(tags)}
-        >
+        <CategoryToggleRow type="button" onClick={() => onToggleCategory(tags)}>
           <Flex align="center" gap={8} style={{ minWidth: 0 }}>
             <CheckboxBox
               $checked={allVisible}
@@ -363,25 +357,8 @@ export function CalendarCategoriesSidebar({
         </Flex>
       </SidebarHeader>
 
-      <QuickActionsRow>
-        <Text size="xsmall" type="tertiary">
-          {t("Select to show or hide")}
-        </Text>
-        <Flex align="center" gap={6}>
-          <TextActionButton type="button" onClick={onSelectAll}>
-            {t("Show all")}
-          </TextActionButton>
-          <Text size="xsmall" type="tertiary">
-            ·
-          </Text>
-          <TextActionButton type="button" onClick={onSelectNone}>
-            {t("Hide all")}
-          </TextActionButton>
-        </Flex>
-      </QuickActionsRow>
-
       {categories.map((cat) =>
-        renderCategoryBlock(cat.id, cat.name, cat.color, cat.tags)
+        renderCategoryBlock(cat.id, cat.name, cat.color, cat.tags),
       )}
 
       {uncategorizedTags.length > 0
@@ -389,7 +366,7 @@ export function CalendarCategoriesSidebar({
             "cat-uncategorized",
             t("Custom Tags"),
             "#64748B",
-            uncategorizedTags
+            uncategorizedTags,
           )
         : null}
 
@@ -414,11 +391,6 @@ export function CalendarCategoriesSidebar({
           </Text>
           <CountBadge>{visibleMonthEventCount}</CountBadge>
         </Flex>
-        <Text size="xsmall" type="tertiary">
-          {t(
-            "Your .ics download and CalDAV feed only include events matching the categories & tags selected above."
-          )}
-        </Text>
         <Flex gap={6} wrap style={{ marginTop: 2 }}>
           <Button
             type="button"

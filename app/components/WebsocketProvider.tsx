@@ -848,12 +848,9 @@ function useCalendarEventHandlers() {
       }
     );
 
-    socket.on(
-      "calendarEvents.delete",
-      (event: WebsocketEntityDeletedEvent) => {
-        calendarEvents.remove(event.modelId);
-      }
-    );
+    socket.on("calendarEvents.delete", (event: WebsocketEntityDeletedEvent) => {
+      calendarEvents.remove(event.modelId);
+    });
   };
 }
 

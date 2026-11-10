@@ -134,8 +134,7 @@ export function generateICalendar(events: CalendarEvent[]): string {
       descriptionParts.push(event.description);
     }
 
-    const origin =
-      typeof window !== "undefined" ? window.location.origin : "";
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     for (const col of event.collections ?? []) {
       descriptionParts.push(
         `Collection: ${col.displayName} (${origin}${col.path})`

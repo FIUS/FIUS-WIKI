@@ -4,6 +4,7 @@ import {
   CalendarIcon,
   CheckmarkIcon,
   CloseIcon,
+  GlobeIcon,
   HashtagIcon,
   PadlockIcon,
   PlusIcon,
@@ -18,6 +19,8 @@ import {
   CalendarEventPermissionType,
   DEFAULT_CALENDAR_CATEGORIES,
   DEFAULT_CALENDAR_SETTINGS,
+  type CaldavConnection,
+  type CaldavSyncDirection,
   type CalendarCategory,
   type CalendarWorkspaceSettings,
 } from "@shared/types";
@@ -73,7 +76,7 @@ const SwatchButton = styled.button<{ $color: string; $selected: boolean }>`
   }
 `;
 
-const CategoriesSection = styled.div`
+const SectionBlock = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -101,7 +104,7 @@ const CategoryHeader = styled.div`
   flex-wrap: wrap;
 `;
 
-const CategoryNameInput = styled.input`
+const InlineTextInput = styled.input`
   height: 32px;
   padding: 0 10px;
   border-radius: 6px;
@@ -109,9 +112,9 @@ const CategoryNameInput = styled.input`
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 220px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 200px;
   outline: none;
 
   &:focus {
@@ -139,6 +142,24 @@ const TagBadge = styled.span<{ $color: string }>`
   border: 1px solid ${({ $color }) => `${$color}40`};
 `;
 
+const SelectableTagPill = styled.button<{ $active: boolean; $color: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: ${({ $active }) => ($active ? 600 : 500)};
+  cursor: pointer;
+  border: 1px solid
+    ${({ $active, $color, theme }) => ($active ? $color : theme.divider)};
+  background: ${({ $active, $color, theme }) =>
+    $active ? `${$color}18` : theme.background};
+  color: ${({ $active, $color, theme }) =>
+    $active ? $color : theme.textSecondary};
+`;
+
 const RemoveTagBtn = styled.button`
   display: inline-flex;
   align-items: center;
@@ -164,20 +185,29 @@ const AddTagRow = styled.div`
   max-width: 360px;
 `;
 
-const NewCategoryBox = styled.div`
+const DashedBox = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
-  padding: 14px 16px;
+  padding: 16px;
   border-radius: 10px;
   border: 1px dashed ${({ theme }) => theme.divider};
   background: ${({ theme }) => theme.background};
 `;
 
+const GridTwoCols = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 /**
- * Workspace Admin Settings scene for managing Calendar defaults, policies, categories, and tags.
+ * Workspace Admin Settings scene for managing Calendar defaults, policies, categories, tags,
+ * and bidirectional CalDAV connections.
  *
  * @returns The rendered CalendarSettings scene component.
  */
@@ -193,14 +223,32 @@ function CalendarSettings() {
         ...cat,
         tags: [...cat.tags],
       })),
-    })
+      caldavConnections: (calendarEvents.settings.caldavConnections ?? []).map(
+        (conn) => ({
+          ...conn,
+          defaultTags: [...conn.defaultTags],
+        }),
+      ),
+    }),
   );
   const [tagDrafts, setTagDrafts] = React.useState<Record<string, string>>({});
   const [newCategoryName, setNewCategoryName] = React.useState("");
   const [newCategoryColor, setNewCategoryColor] = React.useState(
-    PRESET_COLORS[0]
+    PRESET_COLORS[0],
   );
+
+  // New CalDAV Connection draft state
+  const [newConnName, setNewConnName] = React.useState("");
+  const [newConnUrl, setNewConnUrl] = React.useState("");
+  const [newConnUsername, setNewConnUsername] = React.useState("");
+  const [newConnPassword, setNewConnPassword] = React.useState("");
+  const [newConnDirection, setNewConnDirection] =
+    React.useState<CaldavSyncDirection>("bidirectional");
+  const [newConnColor, setNewConnColor] = React.useState(PRESET_COLORS[0]);
+  const [newConnTags, setNewConnTags] = React.useState<string[]>([]);
+
   const [isSaving, setIsSaving] = React.useState(false);
+  const [syncingId, setSyncingId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     void calendarEvents.fetchSettings().then((loaded) => {
@@ -211,9 +259,25 @@ function CalendarSettings() {
           ...cat,
           tags: [...cat.tags],
         })),
+        caldavConnections: (loaded.caldavConnections ?? []).map((conn) => ({
+          ...conn,
+          defaultTags: [...conn.defaultTags],
+        })),
       });
     });
   }, [calendarEvents]);
+
+  const allCategoryTags = React.useMemo(() => {
+    const tags: string[] = [];
+    for (const cat of formState.categories) {
+      for (const tag of cat.tags) {
+        if (!tags.some((tItem) => tItem.toLowerCase() === tag.toLowerCase())) {
+          tags.push(tag);
+        }
+      }
+    }
+    return tags;
+  }, [formState.categories]);
 
   const viewModeOptions: Option[] = React.useMemo(
     () => [
@@ -228,7 +292,7 @@ function CalendarSettings() {
         label: t("Agenda List"),
       },
     ],
-    [t]
+    [t],
   );
 
   const permissionOptions: Option[] = React.useMemo(
@@ -248,7 +312,29 @@ function CalendarSettings() {
         icon: <TeamIcon />,
       },
     ],
-    [t]
+    [t],
+  );
+
+  const syncDirectionOptions: Option[] = React.useMemo(
+    () => [
+      {
+        type: "item",
+        value: "bidirectional",
+        label: t("Two-Way CalDAV Sync (Import & Push)"),
+        description: t(
+          "Imports remote CalDAV events and pushes matching Outline events back",
+        ),
+      },
+      {
+        type: "item",
+        value: "import_only",
+        label: t("One-Way Import & Keep in Sync"),
+        description: t(
+          "Pulls events from the external CalDAV / .ics calendar into Outline",
+        ),
+      },
+    ],
+    [t],
   );
 
   const handleUpdateCategory = React.useCallback(
@@ -256,11 +342,11 @@ function CalendarSettings() {
       setFormState((prev) => ({
         ...prev,
         categories: prev.categories.map((cat) =>
-          cat.id === catId ? { ...cat, ...patch } : cat
+          cat.id === catId ? { ...cat, ...patch } : cat,
         ),
       }));
     },
-    []
+    [],
   );
 
   const handleDeleteCategory = React.useCallback((catId: string) => {
@@ -284,7 +370,7 @@ function CalendarSettings() {
             return cat;
           }
           const exists = cat.tags.some(
-            (existing) => existing.toLowerCase() === raw.toLowerCase()
+            (existing) => existing.toLowerCase() === raw.toLowerCase(),
           );
           return exists ? cat : { ...cat, tags: [...cat.tags, raw] };
         }),
@@ -292,7 +378,7 @@ function CalendarSettings() {
 
       setTagDrafts((prev) => ({ ...prev, [catId]: "" }));
     },
-    [tagDrafts]
+    [tagDrafts],
   );
 
   const handleRemoveTagFromCategory = React.useCallback(
@@ -301,12 +387,15 @@ function CalendarSettings() {
         ...prev,
         categories: prev.categories.map((cat) =>
           cat.id === catId
-            ? { ...cat, tags: cat.tags.filter((tItem) => tItem !== tagToRemove) }
-            : cat
+            ? {
+                ...cat,
+                tags: cat.tags.filter((tItem) => tItem !== tagToRemove),
+              }
+            : cat,
         ),
       }));
     },
-    []
+    [],
   );
 
   const handleAddCategory = React.useCallback(() => {
@@ -341,6 +430,132 @@ function CalendarSettings() {
     toast.info(t("Default categories restored. Click Save to apply."));
   }, [t]);
 
+  const handleAddCaldavConnection = React.useCallback(() => {
+    const name = newConnName.trim();
+    const url = newConnUrl.trim();
+    if (!name || !url) {
+      toast.error(
+        t("Please enter both a connection name and a CalDAV/.ics URL."),
+      );
+      return;
+    }
+
+    const newConn: CaldavConnection = {
+      id: `caldav-${Date.now()}`,
+      name,
+      url,
+      username: newConnUsername.trim() || null,
+      password: newConnPassword || null,
+      defaultColor: newConnColor,
+      defaultTags: [...newConnTags],
+      syncDirection: newConnDirection,
+      enabled: true,
+      lastSyncedAt: null,
+      lastSyncStatus: null,
+      syncedEventIds: [],
+    };
+
+    setFormState((prev) => ({
+      ...prev,
+      caldavConnections: [...(prev.caldavConnections ?? []), newConn],
+    }));
+    setNewConnName("");
+    setNewConnUrl("");
+    setNewConnUsername("");
+    setNewConnPassword("");
+    setNewConnTags([]);
+    toast.success(
+      t("CalDAV connection added. Click Save Settings or Sync Now."),
+    );
+  }, [
+    newConnName,
+    newConnUrl,
+    newConnUsername,
+    newConnPassword,
+    newConnColor,
+    newConnTags,
+    newConnDirection,
+    t,
+  ]);
+
+  const handleUpdateConnection = React.useCallback(
+    (connId: string, patch: Partial<CaldavConnection>) => {
+      setFormState((prev) => ({
+        ...prev,
+        caldavConnections: (prev.caldavConnections ?? []).map((conn) =>
+          conn.id === connId ? { ...conn, ...patch } : conn,
+        ),
+      }));
+    },
+    [],
+  );
+
+  const handleToggleConnectionTag = React.useCallback(
+    (connId: string, tag: string) => {
+      setFormState((prev) => ({
+        ...prev,
+        caldavConnections: (prev.caldavConnections ?? []).map((conn) => {
+          if (conn.id !== connId) {
+            return conn;
+          }
+          const exists = conn.defaultTags.some(
+            (tItem) => tItem.toLowerCase() === tag.toLowerCase(),
+          );
+          return {
+            ...conn,
+            defaultTags: exists
+              ? conn.defaultTags.filter(
+                  (tItem) => tItem.toLowerCase() !== tag.toLowerCase(),
+                )
+              : [...conn.defaultTags, tag],
+          };
+        }),
+      }));
+    },
+    [],
+  );
+
+  const handleDeleteConnection = React.useCallback((connId: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      caldavConnections: (prev.caldavConnections ?? []).filter(
+        (conn) => conn.id !== connId,
+      ),
+    }));
+  }, []);
+
+  const handleSyncConnectionNow = async (connId: string) => {
+    setSyncingId(connId);
+    try {
+      await calendarEvents.updateSettings(formState);
+      const stats = await calendarEvents.syncCaldav(connId);
+      setFormState((prev) => ({
+        ...prev,
+        caldavConnections: (
+          calendarEvents.settings.caldavConnections ?? []
+        ).map((c) => ({ ...c, defaultTags: [...c.defaultTags] })),
+      }));
+      toast.success(
+        t(
+          "CalDAV synced: {{imported}} imported, {{updated}} updated, {{pushed}} pushed.",
+          {
+            imported: stats.imported,
+            updated: stats.updated,
+            pushed: stats.pushed ?? 0,
+          },
+        ),
+      );
+    } catch {
+      toast.error(
+        t(
+          "Could not sync with remote CalDAV server. Please check the URL and credentials.",
+        ),
+      );
+    } finally {
+      setSyncingId(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -359,7 +574,7 @@ function CalendarSettings() {
       <Heading>{t("Calendar")}</Heading>
       <Text as="p" type="secondary">
         {t(
-          "Configure workspace-wide defaults, permissions, CalDAV feed access, and event categories & tags for your team calendar."
+          "Configure workspace-wide defaults, permissions, bidirectional CalDAV synchronization, and event categories & tags for your team calendar.",
         )}
       </Text>
 
@@ -368,7 +583,7 @@ function CalendarSettings() {
           label={t("Default view mode")}
           name="defaultViewMode"
           description={t(
-            "Choose whether the workspace calendar opens in Month Grid or Agenda List view by default."
+            "Choose whether the workspace calendar opens in Month Grid or Agenda List view by default.",
           )}
         >
           <InputSelect
@@ -389,7 +604,7 @@ function CalendarSettings() {
           label={t("Default event edit permission")}
           name="defaultPermissionType"
           description={t(
-            "Select who is allowed to edit newly created calendar events by default."
+            "Select who is allowed to edit newly created calendar events by default.",
           )}
         >
           <InputSelect
@@ -410,7 +625,7 @@ function CalendarSettings() {
           label={t("Default event color")}
           name="defaultColor"
           description={t(
-            "Default highlight color preselected when creating a new event."
+            "Default highlight color preselected when creating a new event.",
           )}
         >
           <SwatchRow>
@@ -439,7 +654,7 @@ function CalendarSettings() {
           label={t("Allow custom tags")}
           name="allowCustomTags"
           description={t(
-            "Allow workspace members to create custom tags on events in addition to the predefined category tags below."
+            "Allow workspace members to create custom tags on events in addition to the predefined category tags below.",
           )}
         >
           <Switch
@@ -456,7 +671,7 @@ function CalendarSettings() {
           label={t("Enable CalDAV / iCal feeds")}
           name="enableCaldavFeeds"
           description={t(
-            "Allow members to subscribe to live external CalDAV / iCal feed URLs in Apple Calendar, Google Calendar, or Outlook."
+            "Allow members to subscribe to live external CalDAV / iCal feed URLs in Apple Calendar, Google Calendar, or Outlook.",
           )}
           border={false}
         >
@@ -470,7 +685,252 @@ function CalendarSettings() {
           />
         </SettingRow>
 
-        <CategoriesSection>
+        <SectionBlock>
+          <Flex align="center" justify="space-between" gap={12} wrap>
+            <Flex column gap={4}>
+              <Heading as="h2" style={{ margin: 0, fontSize: 18 }}>
+                {t("CalDAV Sync & External Calendars")}
+              </Heading>
+              <Text size="small" type="secondary">
+                {t(
+                  "Connect external CalDAV servers (Nextcloud, Apple iCloud, Fastmail, Radicale) or .ics feeds, map their events to Outline tags and colors, and keep both sides in sync.",
+                )}
+              </Text>
+            </Flex>
+          </Flex>
+
+          {(formState.caldavConnections ?? []).map((conn) => (
+            <CategoryCard key={conn.id} $color={conn.defaultColor}>
+              <CategoryHeader>
+                <Flex align="center" gap={10} wrap>
+                  <GlobeIcon size={18} />
+                  <InlineTextInput
+                    type="text"
+                    value={conn.name}
+                    onChange={(e) =>
+                      handleUpdateConnection(conn.id, { name: e.target.value })
+                    }
+                    placeholder={t("Calendar name")}
+                  />
+                  <Switch
+                    label={t("Enabled")}
+                    checked={conn.enabled}
+                    onChange={(checked) =>
+                      handleUpdateConnection(conn.id, { enabled: checked })
+                    }
+                    height={18}
+                    width={34}
+                  />
+                </Flex>
+
+                <Flex align="center" gap={8}>
+                  <Button
+                    type="button"
+                    neutral
+                    disabled={syncingId === conn.id}
+                    onClick={() => handleSyncConnectionNow(conn.id)}
+                    icon={<RestoreIcon />}
+                  >
+                    {syncingId === conn.id ? t("Syncing…") : t("Sync Now")}
+                  </Button>
+                  <Button
+                    type="button"
+                    neutral
+                    danger
+                    onClick={() => handleDeleteConnection(conn.id)}
+                    icon={<TrashIcon />}
+                  >
+                    {t("Remove")}
+                  </Button>
+                </Flex>
+              </CategoryHeader>
+
+              <GridTwoCols>
+                <Input
+                  label={t("CalDAV Collection or .ics URL")}
+                  value={conn.url}
+                  onChange={(e) =>
+                    handleUpdateConnection(conn.id, { url: e.target.value })
+                  }
+                  margin={0}
+                />
+                <InputSelect
+                  label={t("Sync Mode")}
+                  value={conn.syncDirection}
+                  options={syncDirectionOptions}
+                  onChange={(val) =>
+                    handleUpdateConnection(conn.id, {
+                      syncDirection: val as CaldavSyncDirection,
+                    })
+                  }
+                />
+              </GridTwoCols>
+
+              <Flex column gap={6}>
+                <Text size="xsmall" type="secondary" weight="bold">
+                  {t(
+                    "Mapped Tags (applied on import & used to filter two-way push)",
+                  )}
+                </Text>
+                <TagsContainer>
+                  {allCategoryTags.map((tag) => {
+                    const isSelected = conn.defaultTags.some(
+                      (tItem) => tItem.toLowerCase() === tag.toLowerCase(),
+                    );
+                    return (
+                      <SelectableTagPill
+                        key={tag}
+                        type="button"
+                        $active={isSelected}
+                        $color={conn.defaultColor}
+                        onClick={() => handleToggleConnectionTag(conn.id, tag)}
+                      >
+                        <HashtagIcon size={11} />
+                        {tag}
+                      </SelectableTagPill>
+                    );
+                  })}
+                </TagsContainer>
+              </Flex>
+
+              {conn.lastSyncedAt ? (
+                <Text size="xsmall" type="tertiary">
+                  {t("Last synced: {{date}} ({{status}})", {
+                    date: new Date(conn.lastSyncedAt).toLocaleString(),
+                    status: conn.lastSyncStatus ?? "ok",
+                  })}
+                </Text>
+              ) : null}
+            </CategoryCard>
+          ))}
+
+          <DashedBox>
+            <Text size="small" weight="bold">
+              {t("Add External CalDAV / iCal Connection")}
+            </Text>
+
+            <GridTwoCols>
+              <Input
+                label={t("Connection Name")}
+                placeholder={t(
+                  "e.g. Nextcloud Team Calendar, Google Calendar...",
+                )}
+                value={newConnName}
+                onChange={(e) => setNewConnName(e.target.value)}
+                margin={0}
+              />
+              <Input
+                label={t("CalDAV or .ics URL")}
+                placeholder={t(
+                  "https://caldav.example.com/calendars/team/ or webcal://...",
+                )}
+                value={newConnUrl}
+                onChange={(e) => setNewConnUrl(e.target.value)}
+                margin={0}
+              />
+            </GridTwoCols>
+
+            <GridTwoCols>
+              <Input
+                label={t("Username (optional, for CalDAV Basic Auth)")}
+                placeholder={t("Username or email")}
+                value={newConnUsername}
+                onChange={(e) => setNewConnUsername(e.target.value)}
+                margin={0}
+              />
+              <Input
+                type="password"
+                label={t("App Password / Token (optional)")}
+                placeholder={t("Password or app-specific token")}
+                value={newConnPassword}
+                onChange={(e) => setNewConnPassword(e.target.value)}
+                margin={0}
+              />
+            </GridTwoCols>
+
+            <GridTwoCols>
+              <InputSelect
+                label={t("Sync Direction")}
+                value={newConnDirection}
+                options={syncDirectionOptions}
+                onChange={(val) =>
+                  setNewConnDirection(val as CaldavSyncDirection)
+                }
+              />
+
+              <Flex column gap={6}>
+                <Text size="small" weight="bold">
+                  {t("Mapped Event Color")}
+                </Text>
+                <SwatchRow>
+                  {PRESET_COLORS.map((color) => {
+                    const isSelected =
+                      newConnColor.toLowerCase() === color.toLowerCase();
+                    return (
+                      <SwatchButton
+                        key={color}
+                        type="button"
+                        $color={color}
+                        $selected={isSelected}
+                        onClick={() => setNewConnColor(color)}
+                        aria-label={color}
+                      >
+                        {isSelected ? <CheckmarkIcon size={12} /> : null}
+                      </SwatchButton>
+                    );
+                  })}
+                </SwatchRow>
+              </Flex>
+            </GridTwoCols>
+
+            <Flex column gap={6}>
+              <Text size="small" weight="bold">
+                {t("Map to Tags / Categories")}
+              </Text>
+              <TagsContainer>
+                {allCategoryTags.map((tag) => {
+                  const isSelected = newConnTags.some(
+                    (tItem) => tItem.toLowerCase() === tag.toLowerCase(),
+                  );
+                  return (
+                    <SelectableTagPill
+                      key={tag}
+                      type="button"
+                      $active={isSelected}
+                      $color={newConnColor}
+                      onClick={() =>
+                        setNewConnTags((prev) =>
+                          isSelected
+                            ? prev.filter(
+                                (tItem) =>
+                                  tItem.toLowerCase() !== tag.toLowerCase(),
+                              )
+                            : [...prev, tag],
+                        )
+                      }
+                    >
+                      <HashtagIcon size={11} />
+                      {tag}
+                    </SelectableTagPill>
+                  );
+                })}
+              </TagsContainer>
+            </Flex>
+
+            <Flex justify="flex-end">
+              <Button
+                type="button"
+                neutral
+                onClick={handleAddCaldavConnection}
+                icon={<PlusIcon />}
+              >
+                {t("Add CalDAV Connection")}
+              </Button>
+            </Flex>
+          </DashedBox>
+        </SectionBlock>
+
+        <SectionBlock>
           <Flex align="center" justify="space-between" gap={12} wrap>
             <Flex column gap={4}>
               <Heading as="h2" style={{ margin: 0, fontSize: 18 }}>
@@ -478,25 +938,17 @@ function CalendarSettings() {
               </Heading>
               <Text size="small" type="secondary">
                 {t(
-                  "Organize tags into categories. Members can filter the calendar, toggle visibility in the right sidebar, and customize their iCal/CalDAV exports by category and tag."
+                  "Organize tags into categories. Members can filter the calendar, toggle visibility in the right sidebar, and customize their iCal/CalDAV exports by category and tag.",
                 )}
               </Text>
             </Flex>
-            <Button
-              type="button"
-              neutral
-              onClick={handleResetCategories}
-              icon={<RestoreIcon />}
-            >
-              {t("Restore defaults")}
-            </Button>
           </Flex>
 
           {formState.categories.map((cat) => (
             <CategoryCard key={cat.id} $color={cat.color}>
               <CategoryHeader>
                 <Flex align="center" gap={12} wrap>
-                  <CategoryNameInput
+                  <InlineTextInput
                     type="text"
                     value={cat.name}
                     onChange={(e) =>
@@ -595,49 +1047,51 @@ function CalendarSettings() {
             </CategoryCard>
           ))}
 
-          <NewCategoryBox>
-            <Flex align="center" gap={12} wrap style={{ flex: 1 }}>
-              <CategoryNameInput
-                type="text"
-                placeholder={t("New category name (e.g. Marketing, HR)...")}
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddCategory();
-                  }
-                }}
-              />
-              <SwatchRow>
-                {PRESET_COLORS.map((color) => {
-                  const isSelected =
-                    newCategoryColor.toLowerCase() === color.toLowerCase();
-                  return (
-                    <SwatchButton
-                      key={color}
-                      type="button"
-                      $color={color}
-                      $selected={isSelected}
-                      onClick={() => setNewCategoryColor(color)}
-                      aria-label={color}
-                    >
-                      {isSelected ? <CheckmarkIcon size={12} /> : null}
-                    </SwatchButton>
-                  );
-                })}
-              </SwatchRow>
+          <DashedBox>
+            <Flex align="center" justify="space-between" gap={12} wrap>
+              <Flex align="center" gap={12} wrap style={{ flex: 1 }}>
+                <InlineTextInput
+                  type="text"
+                  placeholder={t("New category name (e.g. Marketing, HR)...")}
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddCategory();
+                    }
+                  }}
+                />
+                <SwatchRow>
+                  {PRESET_COLORS.map((color) => {
+                    const isSelected =
+                      newCategoryColor.toLowerCase() === color.toLowerCase();
+                    return (
+                      <SwatchButton
+                        key={color}
+                        type="button"
+                        $color={color}
+                        $selected={isSelected}
+                        onClick={() => setNewCategoryColor(color)}
+                        aria-label={color}
+                      >
+                        {isSelected ? <CheckmarkIcon size={12} /> : null}
+                      </SwatchButton>
+                    );
+                  })}
+                </SwatchRow>
+              </Flex>
+              <Button
+                type="button"
+                neutral
+                onClick={handleAddCategory}
+                icon={<PlusIcon />}
+              >
+                {t("Add category")}
+              </Button>
             </Flex>
-            <Button
-              type="button"
-              neutral
-              onClick={handleAddCategory}
-              icon={<PlusIcon />}
-            >
-              {t("Add category")}
-            </Button>
-          </NewCategoryBox>
-        </CategoriesSection>
+          </DashedBox>
+        </SectionBlock>
 
         <ActionRow style={{ marginTop: 24 }}>
           <Button type="submit" disabled={isSaving}>

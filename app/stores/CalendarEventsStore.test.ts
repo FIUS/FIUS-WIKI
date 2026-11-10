@@ -127,11 +127,21 @@ describe("CalendarEventsStore", () => {
       createdById: "11111111-1111-4111-8111-111111111111",
     });
 
-    expect(doesEventOccurOnDay(weeklyEvent, new Date("2026-11-02T12:00:00.000Z"))).toBe(true);
-    expect(doesEventOccurOnDay(weeklyEvent, new Date("2026-11-03T12:00:00.000Z"))).toBe(false);
-    expect(doesEventOccurOnDay(weeklyEvent, new Date("2026-11-09T12:00:00.000Z"))).toBe(true);
-    expect(doesEventOccurOnDay(weeklyEvent, new Date("2026-11-16T12:00:00.000Z"))).toBe(true);
-    expect(doesEventOccurOnDay(weeklyEvent, new Date("2026-11-23T12:00:00.000Z"))).toBe(false);
+    expect(
+      doesEventOccurOnDay(weeklyEvent, new Date("2026-11-02T12:00:00.000Z"))
+    ).toBe(true);
+    expect(
+      doesEventOccurOnDay(weeklyEvent, new Date("2026-11-03T12:00:00.000Z"))
+    ).toBe(false);
+    expect(
+      doesEventOccurOnDay(weeklyEvent, new Date("2026-11-09T12:00:00.000Z"))
+    ).toBe(true);
+    expect(
+      doesEventOccurOnDay(weeklyEvent, new Date("2026-11-16T12:00:00.000Z"))
+    ).toBe(true);
+    expect(
+      doesEventOccurOnDay(weeklyEvent, new Date("2026-11-23T12:00:00.000Z"))
+    ).toBe(false);
 
     const groups = getDayScheduleGroups(
       [weeklyEvent],

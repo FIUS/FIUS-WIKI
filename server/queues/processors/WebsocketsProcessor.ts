@@ -639,11 +639,9 @@ export default class WebsocketsProcessor {
       }
 
       case "calendarEvents.delete": {
-        return socketio
-          .to(`team-${event.teamId}`)
-          .emit(event.name, {
-            modelId: event.modelId,
-          });
+        return socketio.to(`team-${event.teamId}`).emit(event.name, {
+          modelId: event.modelId,
+        });
       }
 
       case "shares.create":

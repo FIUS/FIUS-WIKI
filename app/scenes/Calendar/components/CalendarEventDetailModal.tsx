@@ -191,7 +191,9 @@ const ReferenceCard = styled(Link)`
   color: ${({ theme }) => theme.text};
   text-decoration: none;
   font-weight: 500;
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 
   &:hover {
     background: ${({ theme }) => theme.listItemHoverBackground};
@@ -243,9 +245,7 @@ function CalendarEventDetailModal({
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   const can = usePolicy(event);
-  const isConfirmDeleteOpen = Boolean(
-    event && confirmingDeleteId === event.id
-  );
+  const isConfirmDeleteOpen = Boolean(event && confirmingDeleteId === event.id);
 
   React.useEffect(() => {
     if (!isOpen || !event) {
@@ -301,8 +301,7 @@ function CalendarEventDetailModal({
         return startStr === endStr ? startStr : `${startStr} – ${endStr}`;
       }
 
-      const sameDay =
-        format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
+      const sameDay = format(start, "yyyy-MM-dd") === format(end, "yyyy-MM-dd");
       if (sameDay) {
         return `${format(start, "EEE, MMM d, yyyy")} · ${format(start, "p")} – ${format(end, "p")}`;
       }

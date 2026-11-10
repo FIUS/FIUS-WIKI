@@ -6,8 +6,6 @@ import {
   BulletedListIcon,
   CalendarIcon,
   CloseIcon,
-  GlobeIcon,
-  HashtagIcon,
   NextIcon,
   PlusIcon,
   SearchIcon,
@@ -20,17 +18,6 @@ import Heading from "~/components/Heading";
 export type CalendarViewMode = "month" | "list";
 export type CalendarFilterMode =
   "all" | "mine" | "assigned" | "recurring" | "references" | "allDay";
-
-const FILTER_COLORS = [
-  "#0366d6",
-  "#10B981",
-  "#F59E0B",
-  "#EF4444",
-  "#8B5CF6",
-  "#EC4899",
-  "#06B6D4",
-  "#64748B",
-];
 
 interface Props {
   /** The currently selected month date */
@@ -49,16 +36,8 @@ interface Props {
   filterMode: CalendarFilterMode;
   /** Update quick filter */
   onFilterModeChange: (mode: CalendarFilterMode) => void;
-  /** Selected color filter, or null for all colors */
-  selectedColor: string | null;
-  /** Update color filter */
-  onColorChange: (color: string | null) => void;
-  /** Available tags across loaded events */
-  availableTags: string[];
-  /** Currently selected tag filter */
-  selectedTag: string | null;
-  /** Update tag filter */
-  onTagChange: (tag: string | null) => void;
+  /** Whether any filter or sidebar tag filter is active */
+  hasActiveFilters: boolean;
   /** Reset all filters and search */
   onClearFilters: () => void;
   /** Navigate to previous month */
@@ -69,8 +48,6 @@ interface Props {
   onToday: () => void;
   /** Trigger creation of a new event */
   onNewEvent: () => void;
-  /** Open the CalDAV / iCal subscription & export modal */
-  onOpenSubscriptionModal: () => void;
 }
 
 const HeaderContainer = styled.div`
@@ -103,15 +80,6 @@ const FilterTopRow = styled.div`
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-`;
-
-const TagsFilterRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  padding-top: 6px;
-  border-top: 1px solid ${({ theme }) => theme.divider};
 `;
 
 const SearchInputWrapper = styled.div`
@@ -204,32 +172,6 @@ const FilterPill = styled.button<{ $active: boolean }>`
   }
 `;
 
-const ColorDotsRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 6px;
-  border-left: 1px solid ${({ theme }) => theme.divider};
-`;
-
-const ColorDotButton = styled.button<{ $color: string; $active: boolean }>`
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: ${({ $color }) => $color};
-  border: 2px solid
-    ${({ $active, theme }) => ($active ? theme.background : "transparent")};
-  box-shadow: ${({ $active, $color }) =>
-    $active ? `0 0 0 2px ${$color}` : "none"};
-  cursor: pointer;
-  padding: 0;
-  transition: transform 100ms ease;
-
-  &:hover {
-    transform: scale(1.15);
-  }
-`;
-
 const ResetButton = styled.button`
   height: 28px;
   padding: 0 8px;
@@ -316,7 +258,7 @@ const IconSegmentButton = styled(SegmentButton)`
 
 /**
  * Header bar for the calendar scene displaying month title, navigation, view mode toggle,
- * search and filter controls, CalDAV/iCal export, and new event trigger.
+ * search and filter controls, and new event trigger.
  *
  * @param props The header component properties.
  * @returns The rendered header component.
@@ -330,27 +272,16 @@ export function CalendarHeader({
   onSearchChange,
   filterMode,
   onFilterModeChange,
-  selectedColor,
-  onColorChange,
-  availableTags,
-  selectedTag,
-  onTagChange,
+  hasActiveFilters,
   onClearFilters,
   onPrevMonth,
   onNextMonth,
   onToday,
   onNewEvent,
-  onOpenSubscriptionModal,
 }: Props) {
   const { t } = useTranslation();
   const [today] = React.useState<Date>(() => new Date());
   const isCurrentMonth = isSameMonth(currentMonth, today);
-
-  const hasActiveFilters =
-    Boolean(searchQuery.trim()) ||
-    filterMode !== "all" ||
-    selectedColor !== null ||
-    selectedTag !== null;
 
   return (
     <HeaderContainer>
@@ -462,11 +393,9 @@ export function CalendarHeader({
               {t("My events")}
             </FilterPill>
 
-            {hasActiveFilters ? (
-              <ResetButton type="button" onClick={onClearFilters}>
-                {t("Reset")}
-              </ResetButton>
-            ) : null}
+            <ResetButton type="button" onClick={onClearFilters}>
+              {t("Reset")}
+            </ResetButton>
           </FilterPillsRow>
         </FilterTopRow>
       </FilterToolbar>

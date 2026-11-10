@@ -231,4 +231,3 @@ export const CalendarEventValidation = {
   /** The maximum length of the description */
   maxDescriptionLength: 10_000,
 };
-

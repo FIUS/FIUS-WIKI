@@ -74,7 +74,7 @@ function AppSidebar() {
   const [scrollArea, setScrollArea] = useState<HTMLElement | null>(null);
 
   const sectionOrder = normalizeSidebarSectionOrder(
-    user.getPreference(UserPreference.SidebarSectionOrder, []),
+    user.getPreference(UserPreference.SidebarSectionOrder, [])
   );
 
   const sectionContent = {

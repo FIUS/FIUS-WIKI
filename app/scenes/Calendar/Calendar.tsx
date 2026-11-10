@@ -180,66 +180,61 @@ function Calendar() {
   const categories = calendarEvents.settings.categories;
 
   // Compute all known tags (configured categories + custom event tags) & counts
-  const {
-    availableTags,
-    uncategorizedTags,
-    tagCounts,
-    untaggedCount,
-    allKnownTags,
-  } = React.useMemo(() => {
-    const configuredLowerSet = new Set<string>();
-    const canonicalMap = new Map<string, string>();
+  const { uncategorizedTags, tagCounts, untaggedCount, allKnownTags } =
+    React.useMemo(() => {
+      const configuredLowerSet = new Set<string>();
+      const canonicalMap = new Map<string, string>();
 
-    for (const cat of categories) {
-      for (const tag of cat.tags) {
-        const lower = tag.trim().toLowerCase();
-        if (lower) {
-          configuredLowerSet.add(lower);
-          if (!canonicalMap.has(lower)) {
-            canonicalMap.set(lower, tag.trim());
+      for (const cat of categories) {
+        for (const tag of cat.tags) {
+          const lower = tag.trim().toLowerCase();
+          if (lower) {
+            configuredLowerSet.add(lower);
+            if (!canonicalMap.has(lower)) {
+              canonicalMap.set(lower, tag.trim());
+            }
           }
         }
       }
-    }
 
-    const counts = new Map<string, number>();
-    let untagged = 0;
-    const uncategorizedMap = new Map<string, string>();
+      const counts = new Map<string, number>();
+      let untagged = 0;
+      const uncategorizedMap = new Map<string, string>();
 
-    for (const ev of allEvents) {
-      const evTags = ev.tags ?? [];
-      if (evTags.length === 0) {
-        untagged += 1;
-        continue;
-      }
-      for (const rawTag of evTags) {
-        const cleaned = rawTag.trim();
-        const lower = cleaned.toLowerCase();
-        if (!lower) {
+      for (const ev of allEvents) {
+        const evTags = ev.tags ?? [];
+        if (evTags.length === 0) {
+          untagged += 1;
           continue;
         }
-        counts.set(lower, (counts.get(lower) ?? 0) + 1);
-        if (!canonicalMap.has(lower)) {
-          canonicalMap.set(lower, cleaned);
-        }
-        if (!configuredLowerSet.has(lower) && !uncategorizedMap.has(lower)) {
-          uncategorizedMap.set(lower, cleaned);
+        for (const rawTag of evTags) {
+          const cleaned = rawTag.trim();
+          const lower = cleaned.toLowerCase();
+          if (!lower) {
+            continue;
+          }
+          counts.set(lower, (counts.get(lower) ?? 0) + 1);
+          if (!canonicalMap.has(lower)) {
+            canonicalMap.set(lower, cleaned);
+          }
+          if (!configuredLowerSet.has(lower) && !uncategorizedMap.has(lower)) {
+            uncategorizedMap.set(lower, cleaned);
+          }
         }
       }
-    }
 
-    return {
-      availableTags: Array.from(canonicalMap.values()).sort((a, b) =>
-        a.localeCompare(b)
-      ),
-      uncategorizedTags: Array.from(uncategorizedMap.values()).sort((a, b) =>
-        a.localeCompare(b)
-      ),
-      tagCounts: counts,
-      untaggedCount: untagged,
-      allKnownTags: Array.from(canonicalMap.values()),
-    };
-  }, [categories, allEvents]);
+      return {
+        availableTags: Array.from(canonicalMap.values()).sort((a, b) =>
+          a.localeCompare(b)
+        ),
+        uncategorizedTags: Array.from(uncategorizedMap.values()).sort((a, b) =>
+          a.localeCompare(b)
+        ),
+        tagCounts: counts,
+        untaggedCount: untagged,
+        allKnownTags: Array.from(canonicalMap.values()),
+      };
+    }, [categories, allEvents]);
 
   const handleToggleTag = React.useCallback((tag: string) => {
     const lower = tag.toLowerCase();
@@ -287,8 +282,7 @@ function Calendar() {
   }, [allKnownTags]);
 
   const visibleTags = React.useMemo(
-    () =>
-      allKnownTags.filter((tag) => !hiddenTags.has(tag.toLowerCase())),
+    () => allKnownTags.filter((tag) => !hiddenTags.has(tag.toLowerCase())),
     [allKnownTags, hiddenTags]
   );
 
@@ -343,9 +337,7 @@ function Calendar() {
       }
       if (
         selectedTag &&
-        !evTags.some(
-          (tag) => tag.toLowerCase() === selectedTag.toLowerCase()
-        )
+        !evTags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())
       ) {
         return false;
       }
@@ -451,17 +443,12 @@ function Calendar() {
           onSearchChange={setSearchQuery}
           filterMode={filterMode}
           onFilterModeChange={setFilterMode}
-          selectedColor={selectedColor}
-          onColorChange={setSelectedColor}
-          availableTags={availableTags}
-          selectedTag={selectedTag}
-          onTagChange={setSelectedTag}
+          hasActiveFilters={hasActiveFilters}
           onClearFilters={handleClearFilters}
           onPrevMonth={handlePrevMonth}
           onNextMonth={handleNextMonth}
           onToday={handleToday}
           onNewEvent={handleNewEvent}
-          onOpenSubscriptionModal={handleOpenSubscriptionModal}
         />
 
         <MainContentRow>

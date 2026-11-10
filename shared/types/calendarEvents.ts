@@ -20,6 +20,31 @@ export interface CalendarCategory {
   tags: string[];
 }
 
+export type CaldavSyncDirection = "import_only" | "bidirectional";
+
+export interface CaldavRemoteEventMeta {
+  uid: string;
+  href?: string | null;
+  etag?: string | null;
+  lastSyncedAt?: string | null;
+}
+
+export interface CaldavConnection {
+  id: string;
+  name: string;
+  url: string;
+  username?: string | null;
+  password?: string | null;
+  defaultColor: string;
+  defaultTags: string[];
+  syncDirection: CaldavSyncDirection;
+  enabled: boolean;
+  lastSyncedAt?: string | null;
+  lastSyncStatus?: string | null;
+  syncedEventIds?: string[];
+  remoteEventMeta?: Record<string, CaldavRemoteEventMeta>;
+}
+
 export interface CalendarWorkspaceSettings {
   categories: CalendarCategory[];
   defaultPermissionType: CalendarEventPermissionType;
@@ -27,6 +52,7 @@ export interface CalendarWorkspaceSettings {
   defaultViewMode: "month" | "list";
   allowCustomTags: boolean;
   enableCaldavFeeds: boolean;
+  caldavConnections?: CaldavConnection[];
 }
 
 export const DEFAULT_CALENDAR_CATEGORIES: CalendarCategory[] = [
@@ -63,6 +89,7 @@ export const DEFAULT_CALENDAR_SETTINGS: CalendarWorkspaceSettings = {
   defaultViewMode: "month",
   allowCustomTags: true,
   enableCaldavFeeds: true,
+  caldavConnections: [],
 };
 
 export interface CalendarEvent {

@@ -126,7 +126,10 @@ const AddEventButton = styled.button`
   color: ${({ theme }) => theme.textTertiary};
   cursor: pointer;
   opacity: 0;
-  transition: opacity 120ms ease, background-color 120ms ease, color 120ms ease;
+  transition:
+    opacity 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
 
   &:hover {
     color: ${({ theme }) => theme.text};
@@ -156,7 +159,9 @@ const MoreEventsButton = styled.button`
   padding: 2px 6px;
   margin-top: 1px;
   cursor: pointer;
-  transition: background-color 100ms ease, color 100ms ease;
+  transition:
+    background-color 100ms ease,
+    color 100ms ease;
 
   &:hover {
     color: ${({ theme }) => theme.text};

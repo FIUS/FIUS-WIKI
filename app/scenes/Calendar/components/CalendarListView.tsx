@@ -17,7 +17,10 @@ import Flex from "~/components/Flex";
 import Text from "~/components/Text";
 import useStores from "~/hooks/useStores";
 import type CalendarEvent from "~/models/CalendarEvent";
-import { formatRecurrenceLabel, getDayScheduleGroups } from "../utils/recurrence";
+import {
+  formatRecurrenceLabel,
+  getDayScheduleGroups,
+} from "../utils/recurrence";
 
 interface Props {
   /** The currently selected month date */
@@ -93,7 +96,9 @@ const QuickAddButton = styled.button`
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 
   &:hover {
     color: ${({ theme }) => theme.text};
@@ -282,7 +287,9 @@ function CalendarListView({
           <Text size="small" type="secondary">
             {hasActiveFilters
               ? t("Try adjusting your search query or resetting the filters.")
-              : t("Create a new event to schedule meetings, deadlines, or milestones.")}
+              : t(
+                  "Create a new event to schedule meetings, deadlines, or milestones."
+                )}
           </Text>
         </Flex>
         <Flex gap={8} style={{ marginTop: 4 }}>
@@ -318,10 +325,7 @@ function CalendarListView({
                 </Text>
               </DayTitleGroup>
 
-              <QuickAddButton
-                type="button"
-                onClick={() => onSelectDate(date)}
-              >
+              <QuickAddButton type="button" onClick={() => onSelectDate(date)}>
                 <PlusIcon size={14} />
                 {t("Add event")}
               </QuickAddButton>

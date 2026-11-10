@@ -138,13 +138,13 @@ const Swatch = styled.button<{ $color: string; $isSelected: boolean }>`
     ${({ $isSelected, theme }) =>
       $isSelected ? theme.background : "transparent"};
   box-shadow: ${({ $isSelected, $color }) =>
-    $isSelected
-      ? `0 0 0 2px ${$color}`
-      : "0 1px 2px rgba(0, 0, 0, 0.15)"};
+    $isSelected ? `0 0 0 2px ${$color}` : "0 1px 2px rgba(0, 0, 0, 0.15)"};
   color: #ffffff;
   cursor: pointer;
   padding: 0;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
 
   &:hover {
     transform: scale(1.08);
@@ -343,58 +343,57 @@ const CalendarEventForm = observer(function CalendarEventForm({
   const isEditing = Boolean(event);
   const baseDate = React.useMemo(
     () => (event ? new Date(event.startAt) : initialDate || new Date()),
-    [event, initialDate]
+    [event, initialDate],
   );
   const baseEndDate = React.useMemo(
     () => (event ? new Date(event.endAt) : initialDate || new Date()),
-    [event, initialDate]
+    [event, initialDate],
   );
 
   const [title, setTitle] = React.useState(() => event?.title ?? "");
   const [description, setDescription] = React.useState(
-    () => event?.description ?? ""
+    () => event?.description ?? "",
   );
   const [allDay, setAllDay] = React.useState(() => event?.allDay ?? false);
   const [startDate, setStartDate] = React.useState(() =>
-    format(baseDate, "yyyy-MM-dd")
+    format(baseDate, "yyyy-MM-dd"),
   );
   const [startTime, setStartTime] = React.useState(() =>
-    event ? format(baseDate, "HH:mm") : "09:00"
+    event ? format(baseDate, "HH:mm") : "09:00",
   );
   const [endDate, setEndDate] = React.useState(() =>
-    format(baseEndDate, "yyyy-MM-dd")
+    format(baseEndDate, "yyyy-MM-dd"),
   );
   const [endTime, setEndTime] = React.useState(() =>
-    event ? format(baseEndDate, "HH:mm") : "10:00"
+    event ? format(baseEndDate, "HH:mm") : "10:00",
   );
   const [color, setColor] = React.useState<string>(
     () =>
-      event?.color ||
-      calendarEvents.settings.defaultColor ||
-      PRESET_COLORS[0]
+      event?.color || calendarEvents.settings.defaultColor || PRESET_COLORS[0],
   );
-  const [recurrenceFrequency, setRecurrenceFrequency] =
-    React.useState<string>(() => event?.recurrenceFrequency ?? "none");
+  const [recurrenceFrequency, setRecurrenceFrequency] = React.useState<string>(
+    () => event?.recurrenceFrequency ?? "none",
+  );
   const [recurrenceEndDate, setRecurrenceEndDate] = React.useState<string>(
     () =>
       event?.recurrenceEndAt
         ? format(new Date(event.recurrenceEndAt), "yyyy-MM-dd")
-        : ""
+        : "",
   );
   const [permissionType, setPermissionType] =
     React.useState<CalendarEventPermissionType>(
       () =>
         event?.permissionType ??
         calendarEvents.settings.defaultPermissionType ??
-        CalendarEventPermissionType.CreatorOrAdmin
+        CalendarEventPermissionType.CreatorOrAdmin,
     );
   const [groupId, setGroupId] = React.useState<string | null>(
-    () => event?.groupId ?? null
+    () => event?.groupId ?? null,
   );
 
   // Tags / Categories
   const [selectedTags, setSelectedTags] = React.useState<string[]>(() =>
-    event?.tags ? [...event.tags] : []
+    event?.tags ? [...event.tags] : [],
   );
   const [customTagInput, setCustomTagInput] = React.useState("");
 
@@ -485,15 +484,13 @@ const CalendarEventForm = observer(function CalendarEventForm({
         (col) =>
           col.isActive &&
           !selectedCollectionIds.includes(col.id) &&
-          (!query || col.displayName.toLowerCase().includes(query))
+          (!query || col.displayName.toLowerCase().includes(query)),
       )
       .slice(0, query ? 4 : 3)
-      .map(
-        (collection): ReferenceSuggestion => ({
-          kind: "collection",
-          collection,
-        })
-      );
+      .map((collection): ReferenceSuggestion => ({
+        kind: "collection",
+        collection,
+      }));
 
     const candidateDocs = query
       ? searchedDocs
@@ -502,12 +499,10 @@ const CalendarEventForm = observer(function CalendarEventForm({
     const matchingDocs = candidateDocs
       .filter((doc) => !selectedDocumentIds.includes(doc.id))
       .slice(0, 5)
-      .map(
-        (document): ReferenceSuggestion => ({
-          kind: "document",
-          document,
-        })
-      );
+      .map((document): ReferenceSuggestion => ({
+        kind: "document",
+        document,
+      }));
 
     return [...matchingCollections, ...matchingDocs];
   }, [
@@ -532,7 +527,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
           !selectedAssigneeIds.includes(u.id) &&
           (!query ||
             u.name.toLowerCase().includes(query) ||
-            (u.email ?? "").toLowerCase().includes(query))
+            (u.email ?? "").toLowerCase().includes(query)),
       )
       .slice(0, 6);
   }, [
@@ -550,7 +545,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
     setSelectedTags((prev) =>
       prev.some((tItem) => tItem.toLowerCase() === trimmed.toLowerCase())
         ? prev.filter((tItem) => tItem.toLowerCase() !== trimmed.toLowerCase())
-        : [...prev, trimmed]
+        : [...prev, trimmed],
     );
   }, []);
 
@@ -562,7 +557,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
     setSelectedTags((prev) =>
       prev.some((tItem) => tItem.toLowerCase() === cleaned.toLowerCase())
         ? prev
-        : [...prev, cleaned]
+        : [...prev, cleaned],
     );
     setCustomTagInput("");
   }, [customTagInput]);
@@ -573,7 +568,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
 
   const handleAddAssignee = React.useCallback((userId: string) => {
     setSelectedAssigneeIds((prev) =>
-      prev.includes(userId) ? prev : [...prev, userId]
+      prev.includes(userId) ? prev : [...prev, userId],
     );
     setAssigneeSearchQuery("");
   }, []);
@@ -584,7 +579,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
 
   const handleAddCollection = React.useCallback((colId: string) => {
     setSelectedCollectionIds((prev) =>
-      prev.includes(colId) ? prev : [...prev, colId]
+      prev.includes(colId) ? prev : [...prev, colId],
     );
     setRefSearchQuery("");
   }, []);
@@ -595,7 +590,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
 
   const handleAddDocument = React.useCallback((docId: string) => {
     setSelectedDocumentIds((prev) =>
-      prev.includes(docId) ? prev : [...prev, docId]
+      prev.includes(docId) ? prev : [...prev, docId],
     );
     setRefSearchQuery("");
     setSearchedDocs([]);
@@ -609,14 +604,14 @@ const CalendarEventForm = observer(function CalendarEventForm({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTitle(e.target.value);
     },
-    []
+    [],
   );
 
   const handleDescriptionChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setDescription(e.target.value);
     },
-    []
+    [],
   );
 
   const handlePermissionChange = React.useCallback(
@@ -631,7 +626,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
         setGroupId(groups.orderedData[0].id);
       }
     },
-    [groupId, groups.orderedData]
+    [groupId, groups.orderedData],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -660,7 +655,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
       endIso = new Date(`${endDate}T23:59:59.999`).toISOString();
     } else {
       startIso = new Date(
-        `${startDate}T${startTime || "00:00"}:00`
+        `${startDate}T${startTime || "00:00"}:00`,
       ).toISOString();
       endIso = new Date(`${endDate}T${endTime || "00:00"}:00`).toISOString();
     }
@@ -678,11 +673,9 @@ const CalendarEventForm = observer(function CalendarEventForm({
     let recurrenceEndIso: string | null = null;
     if (activeRecurrence && recurrenceEndDate) {
       recurrenceEndIso = new Date(
-        `${recurrenceEndDate}T23:59:59.999`
+        `${recurrenceEndDate}T23:59:59.999`,
       ).toISOString();
-      if (
-        new Date(recurrenceEndIso).getTime() < new Date(startIso).getTime()
-      ) {
+      if (new Date(recurrenceEndIso).getTime() < new Date(startIso).getTime()) {
         toast.error(t("Repeat end date must be after the start date."));
         return;
       }
@@ -776,7 +769,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
         icon: <RestoreIcon />,
       },
     ],
-    [t]
+    [t],
   );
 
   const permissionOptions: Option[] = React.useMemo(
@@ -785,25 +778,22 @@ const CalendarEventForm = observer(function CalendarEventForm({
         type: "item",
         value: CalendarEventPermissionType.CreatorOrAdmin,
         label: t("Creator & Admins"),
-        description: t("Only the creator and admins can edit or delete"),
         icon: <PadlockIcon />,
       },
       {
         type: "item",
         value: CalendarEventPermissionType.All,
         label: t("Everyone in Workspace"),
-        description: t("All team members can edit or delete this event"),
         icon: <TeamIcon />,
       },
       {
         type: "item",
         value: CalendarEventPermissionType.Group,
         label: t("Specific Group"),
-        description: t("Members of a selected group can edit this event"),
         icon: <GroupIcon />,
       },
     ],
-    [t]
+    [t],
   );
 
   const groupOptions: Option[] = React.useMemo(
@@ -814,7 +804,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
         label: g.name,
         icon: <GroupIcon />,
       })),
-    [groups.orderedData]
+    [groups.orderedData],
   );
 
   const hasSelectedRefs =
@@ -954,7 +944,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
               <TagsRow>
                 {cat.tags.map((preset) => {
                   const isSelected = selectedTags.some(
-                    (tItem) => tItem.toLowerCase() === preset.toLowerCase()
+                    (tItem) => tItem.toLowerCase() === preset.toLowerCase(),
                   );
                   return (
                     <PresetTagButton
@@ -970,7 +960,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
                 })}
               </TagsRow>
             </Flex>
-          ) : null
+          ) : null,
         )}
 
         {selectedTags.length > 0 ? (
@@ -1229,7 +1219,7 @@ const CalendarEventForm = observer(function CalendarEventForm({
             <EmptyGroupNotice>
               <Text size="small" type="secondary">
                 {t(
-                  "No groups exist in this workspace yet. Create a group in Settings -> Groups first."
+                  "No groups exist in this workspace yet. Create a group in Settings -> Groups first.",
                 )}
               </Text>
             </EmptyGroupNotice>

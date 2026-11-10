@@ -52,7 +52,9 @@ export const CalendarEventsCreateSchema = BaseSchema.extend({
   }),
 });
 
-export type CalendarEventsCreateReq = z.infer<typeof CalendarEventsCreateSchema>;
+export type CalendarEventsCreateReq = z.infer<
+  typeof CalendarEventsCreateSchema
+>;
 
 export const CalendarEventsUpdateSchema = BaseSchema.extend({
   body: z.object({
@@ -86,7 +88,9 @@ export const CalendarEventsUpdateSchema = BaseSchema.extend({
   }),
 });
 
-export type CalendarEventsUpdateReq = z.infer<typeof CalendarEventsUpdateSchema>;
+export type CalendarEventsUpdateReq = z.infer<
+  typeof CalendarEventsUpdateSchema
+>;
 
 export const CalendarEventsDeleteSchema = BaseSchema.extend({
   body: z.object({
@@ -94,7 +98,9 @@ export const CalendarEventsDeleteSchema = BaseSchema.extend({
   }),
 });
 
-export type CalendarEventsDeleteReq = z.infer<typeof CalendarEventsDeleteSchema>;
+export type CalendarEventsDeleteReq = z.infer<
+  typeof CalendarEventsDeleteSchema
+>;
 
 export const CalendarEventsFeedUrlSchema = BaseSchema.extend({
   body: z.object({
@@ -121,6 +127,29 @@ export const CalendarEventsIcsSchema = BaseSchema.extend({
 
 export type CalendarEventsIcsReq = z.infer<typeof CalendarEventsIcsSchema>;
 
+const CaldavRemoteEventMetaSchema = z.object({
+  uid: z.string(),
+  href: z.string().nullish(),
+  etag: z.string().nullish(),
+  lastSyncedAt: z.string().nullish(),
+});
+
+const CaldavConnectionSchema = z.object({
+  id: z.string().trim().min(1).max(64),
+  name: z.string().trim().min(1).max(100),
+  url: z.string().trim().min(1).max(2048),
+  username: z.string().max(255).nullish(),
+  password: z.string().max(255).nullish(),
+  defaultColor: z.string().trim().min(1).max(32),
+  defaultTags: z.array(z.string().trim().min(1).max(64)).max(30),
+  syncDirection: z.enum(["import_only", "bidirectional"]),
+  enabled: z.boolean(),
+  lastSyncedAt: z.string().nullish(),
+  lastSyncStatus: z.string().nullish(),
+  syncedEventIds: z.array(z.string()).optional(),
+  remoteEventMeta: z.record(z.string(), CaldavRemoteEventMetaSchema).optional(),
+});
+
 export const CalendarEventsUpdateSettingsSchema = BaseSchema.extend({
   body: z.object({
     categories: z
@@ -138,9 +167,32 @@ export const CalendarEventsUpdateSettingsSchema = BaseSchema.extend({
     defaultViewMode: z.enum(["month", "list"]),
     allowCustomTags: z.boolean(),
     enableCaldavFeeds: z.boolean(),
+    caldavConnections: z.array(CaldavConnectionSchema).max(20).optional(),
   }),
 });
 
 export type CalendarEventsUpdateSettingsReq = z.infer<
   typeof CalendarEventsUpdateSettingsSchema
+>;
+
+export const CalendarEventsImportIcsSchema = BaseSchema.extend({
+  body: z.object({
+    icsContent: z.string().min(1).max(2000000),
+    defaultTags: z.array(z.string().trim().min(1).max(64)).max(20).optional(),
+    defaultColor: z.string().trim().max(32).optional(),
+  }),
+});
+
+export type CalendarEventsImportIcsReq = z.infer<
+  typeof CalendarEventsImportIcsSchema
+>;
+
+export const CalendarEventsSyncCaldavSchema = BaseSchema.extend({
+  body: z.object({
+    connectionId: z.string().trim().min(1).max(64).optional(),
+  }),
+});
+
+export type CalendarEventsSyncCaldavReq = z.infer<
+  typeof CalendarEventsSyncCaldavSchema
 >;

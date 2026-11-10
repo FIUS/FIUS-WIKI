@@ -6,16 +6,12 @@ import {
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
-  isSameMonth,
-  isToday,
-  isWeekend,
 } from "date-fns";
 import { useTranslation } from "react-i18next";
 import type CalendarEvent from "~/models/CalendarEvent";
-import { doesEventOccurOnDay } from "../utils/recurrence";
-import CalendarDayCell from "./CalendarDayCell";
+import CalendarWeekRow from "./CalendarWeekRow";
 
-interface Props {
+export interface Props {
   /** The currently selected month date */
   currentMonth: Date;
   /** List of events to display */
@@ -61,21 +57,14 @@ const WeekdayHeader = styled.div<{ $isWeekend?: boolean }>`
   }
 `;
 
-const DaysGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-
-  & > div:nth-child(7n) {
-    border-right: none;
-  }
-
-  & > div:nth-last-child(-n + 7) {
-    border-bottom: none;
-  }
+const WeeksContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
 /**
- * Renders the full month grid with weekday headers and day cells.
+ * Renders the full month grid with weekday headers and continuous multi-day event bars.
  *
  * @param props Component properties.
  * @returns The rendered month view component.
@@ -120,6 +109,14 @@ export function CalendarMonthView({
     [startDate, endDate]
   );
 
+  const weeks = React.useMemo(() => {
+    const result: Date[][] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      result.push(days.slice(i, i + 7));
+    }
+    return result;
+  }, [days]);
+
   return (
     <Container>
       <WeekdaysRow>
@@ -130,24 +127,18 @@ export function CalendarMonthView({
         ))}
       </WeekdaysRow>
 
-      <DaysGrid>
-        {days.map((day) => {
-          const dayEvents = events.filter((e) => doesEventOccurOnDay(e, day));
-
-          return (
-            <CalendarDayCell
-              key={day.toISOString()}
-              date={day}
-              isCurrentMonth={isSameMonth(day, monthStart)}
-              isToday={isToday(day)}
-              isWeekend={isWeekend(day)}
-              events={dayEvents}
-              onSelectDate={onSelectDate}
-              onSelectEvent={onSelectEvent}
-            />
-          );
-        })}
-      </DaysGrid>
+      <WeeksContainer>
+        {weeks.map((weekDays) => (
+          <CalendarWeekRow
+            key={weekDays[0].toISOString()}
+            days={weekDays}
+            currentMonth={monthStart}
+            events={events}
+            onSelectDate={onSelectDate}
+            onSelectEvent={onSelectEvent}
+          />
+        ))}
+      </WeeksContainer>
     </Container>
   );
 }
