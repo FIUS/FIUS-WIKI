@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import styled from "styled-components";
 import {
   CalendarEventPermissionType,
-  DEFAULT_CALENDAR_CATEGORIES,
   DEFAULT_CALENDAR_SETTINGS,
   type CaldavConnection,
   type CaldavSyncDirection,
@@ -418,17 +417,6 @@ function CalendarSettings() {
     }));
     setNewCategoryName("");
   }, [newCategoryName, newCategoryColor, t]);
-
-  const handleResetCategories = React.useCallback(() => {
-    setFormState((prev) => ({
-      ...prev,
-      categories: DEFAULT_CALENDAR_CATEGORIES.map((cat) => ({
-        ...cat,
-        tags: [...cat.tags],
-      })),
-    }));
-    toast.info(t("Default categories restored. Click Save to apply."));
-  }, [t]);
 
   const handleAddCaldavConnection = React.useCallback(() => {
     const name = newConnName.trim();

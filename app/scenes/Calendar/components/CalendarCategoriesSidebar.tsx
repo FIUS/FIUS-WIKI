@@ -75,29 +75,6 @@ const SidebarHeader = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.divider};
 `;
 
-const QuickActionsRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-`;
-
-const TextActionButton = styled.button`
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.accent};
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 4px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 const SettingsLink = styled(Link)`
   display: inline-flex;
   align-items: center;
@@ -261,8 +238,6 @@ export function CalendarCategoriesSidebar({
   onToggleTag,
   onToggleCategory,
   onToggleUntagged,
-  onSelectAll,
-  onSelectNone,
   onExportICal,
   onOpenSubscriptionModal,
 }: Props) {

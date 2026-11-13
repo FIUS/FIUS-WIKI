@@ -272,7 +272,6 @@ export function CalendarHeader({
   onSearchChange,
   filterMode,
   onFilterModeChange,
-  hasActiveFilters,
   onClearFilters,
   onPrevMonth,
   onNextMonth,
