@@ -100,6 +100,9 @@ export const GroupValidation = {
 export const ImportValidation = {
   /** The maximum length of the import name */
   maxNameLength: 100,
+
+  /** The maximum number of entries in an imported zip archive */
+  maxZipEntries: 250_000,
 };
 
 export const OAuthClientValidation = {
@@ -158,6 +161,9 @@ export const PinValidation = {
 };
 
 export const TeamValidation = {
+  /** The choices for the default share link expiry in days, 0 for no expiry. */
+  defaultShareExpiryDays: [0, 7, 30, 60, 90],
+
   /** The maximum number of domains per team on cloud hosted */
   maxDomains: 10,
 
@@ -222,4 +228,12 @@ export const EmojiValidation = {
   maxNameLength: 25,
   /* the characters allowed in the name */
   allowedNameCharacters: /^[a-z0-9_]*$/,
+};
+
+export const CalendarEventValidation = {
+  /** The maximum length of the title */
+  maxTitleLength: 255,
+
+  /** The maximum length of the description */
+  maxDescriptionLength: 10_000,
 };

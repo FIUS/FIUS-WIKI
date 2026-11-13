@@ -18,6 +18,7 @@ import lazy from "@shared/utils/lazyWithRetry";
 import * as Scenes from "./scenes";
 import {
   archivePath,
+  calendarPath,
   draftsPath,
   homePath,
   searchPath,
@@ -102,6 +103,10 @@ function AuthenticatedRoutes() {
                   component={Scenes.Trash.Component}
                 />
               )}
+              <Route
+                path={calendarPath()}
+                component={Scenes.Calendar.Component}
+              />
               <Route
                 path={`${homePath()}/:tab?`}
                 component={Scenes.Home.Component}

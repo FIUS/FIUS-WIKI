@@ -15,6 +15,7 @@ import {
 } from "@shared/types";
 import { errToId, toError } from "@shared/utils/error";
 import type RootStore from "~/stores/RootStore";
+import type CalendarEvent from "~/models/CalendarEvent";
 import type Collection from "~/models/Collection";
 import type Comment from "~/models/Comment";
 import type Document from "~/models/Document";
@@ -829,6 +830,30 @@ function usePinHandlers() {
   };
 }
 
+function useCalendarEventHandlers() {
+  const { calendarEvents } = useStores();
+
+  return (socket: SocketWithAuthentication) => {
+    socket.on(
+      "calendarEvents.create",
+      (event: PartialExcept<CalendarEvent, "id">) => {
+        calendarEvents.add(event);
+      }
+    );
+
+    socket.on(
+      "calendarEvents.update",
+      (event: PartialExcept<CalendarEvent, "id">) => {
+        calendarEvents.add(event);
+      }
+    );
+
+    socket.on("calendarEvents.delete", (event: WebsocketEntityDeletedEvent) => {
+      calendarEvents.remove(event.modelId);
+    });
+  };
+}
+
 function useShareHandlers() {
   const { shares } = useStores();
 
@@ -926,6 +951,7 @@ function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
   const registerUserHandlers = useUserHandlers();
   const registerNotificationHandlers = useNotificationHandlers();
   const registerPinHandlers = usePinHandlers();
+  const registerCalendarEventHandlers = useCalendarEventHandlers();
   const registerShareHandlers = useShareHandlers();
   const registerStarHandlers = useStarHandlers();
   const registerImportHandlers = useImportHandlers();
@@ -955,6 +981,7 @@ function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
       registerUserHandlers(currentSocket);
       registerNotificationHandlers(currentSocket);
       registerPinHandlers(currentSocket);
+      registerCalendarEventHandlers(currentSocket);
       registerShareHandlers(currentSocket);
       registerStarHandlers(currentSocket);
       registerImportHandlers(currentSocket);

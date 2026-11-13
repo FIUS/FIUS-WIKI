@@ -1,6 +1,7 @@
 import { compact, concat, uniq, uniqBy } from "es-toolkit/compat";
 import type { Server } from "socket.io";
 import {
+  CalendarEvent,
   Comment,
   Document,
   Collection,
@@ -21,6 +22,7 @@ import {
 } from "@server/models";
 import { cannot } from "@server/policies";
 import {
+  presentCalendarEvent,
   presentComment,
   presentCollection,
   presentDocument,
@@ -623,6 +625,23 @@ export default class WebsocketsProcessor {
           .emit(event.name, {
             modelId: event.modelId,
           });
+      }
+
+      case "calendarEvents.create":
+      case "calendarEvents.update": {
+        const calendarEvent = await CalendarEvent.findByPk(event.modelId);
+        if (!calendarEvent) {
+          return;
+        }
+        return socketio
+          .to(`team-${calendarEvent.teamId}`)
+          .emit(event.name, presentCalendarEvent(calendarEvent));
+      }
+
+      case "calendarEvents.delete": {
+        return socketio.to(`team-${event.teamId}`).emit(event.name, {
+          modelId: event.modelId,
+        });
       }
 
       case "shares.create":

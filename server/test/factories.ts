@@ -40,6 +40,7 @@ import {
   WebhookSubscription,
   WebhookDelivery,
   ApiKey,
+  CalendarEvent,
   Subscription,
   Notification,
   SearchQuery,
@@ -857,6 +858,36 @@ export async function buildPin(overrides: Partial<Pin> = {}): Promise<Pin> {
   }
 
   return Pin.create(overrides);
+}
+
+export async function buildCalendarEvent(
+  overrides: Partial<CalendarEvent> = {}
+): Promise<CalendarEvent> {
+  if (!overrides.teamId) {
+    const team = await buildTeam();
+    overrides.teamId = team.id;
+  }
+
+  if (!overrides.createdById) {
+    const user = await buildUser({
+      teamId: overrides.teamId,
+    });
+    overrides.createdById = user.id;
+  }
+
+  if (!overrides.title) {
+    overrides.title = "Team Meeting";
+  }
+
+  if (!overrides.startAt) {
+    overrides.startAt = new Date();
+  }
+
+  if (!overrides.endAt) {
+    overrides.endAt = new Date(Date.now() + 3600 * 1000);
+  }
+
+  return CalendarEvent.create(overrides);
 }
 
 export async function buildOAuthClient(overrides: Partial<OAuthClient> = {}) {

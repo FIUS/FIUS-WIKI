@@ -1,5 +1,6 @@
 export * from "./attachments";
 export * from "./auth";
+export * from "./calendarEvents";
 export * from "./emoji";
 export * from "./fileOperations";
 export * from "./filters";

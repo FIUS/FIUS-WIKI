@@ -41,7 +41,6 @@ import type { Searchable } from "./interfaces/Searchable";
 
 type SaveOptions = JSONObject & {
   publish?: boolean;
-  done?: boolean;
   autosave?: boolean;
 };
 
@@ -358,7 +357,7 @@ export default class Document extends ArchivableModel implements Searchable {
     return !!(
       auth.team?.sharing !== false &&
       this.collection?.sharing !== false &&
-      (share?.published || (sharedParent?.published && !this.isDraft))
+      (share?.isActive || (sharedParent && !this.isDraft))
     );
   }
 

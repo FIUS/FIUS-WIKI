@@ -22,6 +22,7 @@ import type {
   ApiKey,
   Attachment,
   AuthenticationProvider,
+  CalendarEvent,
   FileOperation,
   Revision,
   Team,
@@ -386,6 +387,14 @@ export type PinEvent = BaseEvent<Pin> & {
   collectionId?: string;
 };
 
+export type CalendarEventEvent = BaseEvent<CalendarEvent> & {
+  name:
+    | "calendarEvents.create"
+    | "calendarEvents.update"
+    | "calendarEvents.delete";
+  modelId: string;
+};
+
 export type CommentUpdateEvent = BaseEvent<Comment> & {
   name: "comments.update";
   modelId: string;
@@ -515,6 +524,7 @@ export type Event =
   | DocumentMovedEvent
   | DocumentGroupEvent
   | PinEvent
+  | CalendarEventEvent
   | CommentEvent
   | StarEvent
   | CollectionEvent

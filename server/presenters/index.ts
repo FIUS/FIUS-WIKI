@@ -1,6 +1,7 @@
 import presentApiKey from "./apiKey";
 import presentAttachment from "./attachment";
 import presentAuthenticationProvider from "./authenticationProvider";
+import presentCalendarEvent from "./calendarEvent";
 import presentAvailableTeam from "./availableTeam";
 import presentCollection from "./collection";
 import presentComment from "./comment";
@@ -40,6 +41,7 @@ export {
   presentAttachment,
   presentAuthenticationProvider,
   presentAvailableTeam,
+  presentCalendarEvent,
   presentCollection,
   presentComment,
   presentDocument,

@@ -16,6 +16,15 @@ export function homePath(): string {
 }
 
 /**
+ * Returns the path to the calendar screen.
+ *
+ * @returns the calendar path.
+ */
+export function calendarPath(): string {
+  return "/calendar";
+}
+
+/**
  * Returns the location descriptor used to trigger a logout.
  *
  * @returns a location object with pathname and search.
