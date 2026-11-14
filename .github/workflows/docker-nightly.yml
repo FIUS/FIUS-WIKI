@@ -1,9 +1,9 @@
 name: Publish nightly build
 
 on:
-  schedule:
-    # 03:00 UTC daily
-    - cron: "0 3 * * *"
+  # schedule:
+  #   # 03:00 UTC daily
+  #   - cron: "0 3 * * *"
   workflow_dispatch:
 
 jobs:
