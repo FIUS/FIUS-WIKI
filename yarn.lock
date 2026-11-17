@@ -1762,6 +1762,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@date-fns/tz@npm:^1.4.1":
+  version: 1.5.0
+  resolution: "@date-fns/tz@npm:1.5.0"
+  checksum: 10c0/4ef25eedd55924938fa81b23b949a3425201597e2007f5323db54d50fc19283eca5e2a7963c3d82c99b3adf273e9ea9bc7adfd1c9076e15badd99c593a984ffa
+  languageName: node
+  linkType: hard
+
 "@dnd-kit/accessibility@npm:^3.1.1":
   version: 3.1.1
   resolution: "@dnd-kit/accessibility@npm:3.1.1"
@@ -2116,44 +2123,74 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firecrawl/pdf-inspector-darwin-arm64@npm:1.11.2":
-  version: 1.11.2
-  resolution: "@firecrawl/pdf-inspector-darwin-arm64@npm:1.11.2"
+"@firecrawl/pdf-inspector-darwin-arm64@npm:1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector-darwin-arm64@npm:1.25.2"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@firecrawl/pdf-inspector-linux-x64-gnu@npm:1.11.2":
-  version: 1.11.2
-  resolution: "@firecrawl/pdf-inspector-linux-x64-gnu@npm:1.11.2"
+"@firecrawl/pdf-inspector-linux-arm64-gnu@npm:1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector-linux-arm64-gnu@npm:1.25.2"
+  conditions: os=linux & cpu=arm64 & libc=glibc
+  languageName: node
+  linkType: hard
+
+"@firecrawl/pdf-inspector-linux-arm64-musl@npm:1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector-linux-arm64-musl@npm:1.25.2"
+  conditions: os=linux & cpu=arm64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@firecrawl/pdf-inspector-linux-x64-gnu@npm:1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector-linux-x64-gnu@npm:1.25.2"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@firecrawl/pdf-inspector-win32-x64-msvc@npm:1.11.2":
-  version: 1.11.2
-  resolution: "@firecrawl/pdf-inspector-win32-x64-msvc@npm:1.11.2"
+"@firecrawl/pdf-inspector-linux-x64-musl@npm:1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector-linux-x64-musl@npm:1.25.2"
+  conditions: os=linux & cpu=x64 & libc=musl
+  languageName: node
+  linkType: hard
+
+"@firecrawl/pdf-inspector-win32-x64-msvc@npm:1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector-win32-x64-msvc@npm:1.25.2"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@firecrawl/pdf-inspector@npm:^1.11.2":
-  version: 1.11.2
-  resolution: "@firecrawl/pdf-inspector@npm:1.11.2"
+"@firecrawl/pdf-inspector@npm:^1.25.2":
+  version: 1.25.2
+  resolution: "@firecrawl/pdf-inspector@npm:1.25.2"
   dependencies:
-    "@firecrawl/pdf-inspector-darwin-arm64": "npm:1.11.2"
-    "@firecrawl/pdf-inspector-linux-x64-gnu": "npm:1.11.2"
-    "@firecrawl/pdf-inspector-win32-x64-msvc": "npm:1.11.2"
+    "@firecrawl/pdf-inspector-darwin-arm64": "npm:1.25.2"
+    "@firecrawl/pdf-inspector-linux-arm64-gnu": "npm:1.25.2"
+    "@firecrawl/pdf-inspector-linux-arm64-musl": "npm:1.25.2"
+    "@firecrawl/pdf-inspector-linux-x64-gnu": "npm:1.25.2"
+    "@firecrawl/pdf-inspector-linux-x64-musl": "npm:1.25.2"
+    "@firecrawl/pdf-inspector-win32-x64-msvc": "npm:1.25.2"
   dependenciesMeta:
     "@firecrawl/pdf-inspector-darwin-arm64":
       optional: true
+    "@firecrawl/pdf-inspector-linux-arm64-gnu":
+      optional: true
+    "@firecrawl/pdf-inspector-linux-arm64-musl":
+      optional: true
     "@firecrawl/pdf-inspector-linux-x64-gnu":
+      optional: true
+    "@firecrawl/pdf-inspector-linux-x64-musl":
       optional: true
     "@firecrawl/pdf-inspector-win32-x64-msvc":
       optional: true
   bin:
     pdf-inspector: bin/pdf-inspector.mjs
-  checksum: 10c0/8470dac3f3b5b7b74e7e4df3f3783d3d1537765c6b578eaf96750b83abc7ec85c3cc4c7836285b73ba9e5638d2fb7ed634410e05c76ee5a3e1913f0780f998a9
+  checksum: 10c0/93ab7e1063d05e7327cdf45a567f7ff96da7880c37227b64b09c567c2a1fc636736cf04dd330a3cab71fdfda5e3a314659970bd3d08debb7cb5ab417b1af0987
   languageName: node
   linkType: hard
 
@@ -6195,13 +6232,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/diff@npm:^5.0.9":
-  version: 5.2.3
-  resolution: "@types/diff@npm:5.2.3"
-  checksum: 10c0/dd2e99e272a7023f3e5c71099599553c7d6c9a6b9d67f202b593b8d59b0528361eba39a8674ab18eba76217b6bad8f1a09417a9a571daaf7c0f49d67d4f305e2
-  languageName: node
-  linkType: hard
-
 "@types/escape-html@npm:^1.0.4":
   version: 1.0.4
   resolution: "@types/escape-html@npm:1.0.4"
@@ -8856,10 +8886,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "date-fns@npm:3.6.0"
-  checksum: 10c0/0b5fb981590ef2f8e5a3ba6cd6d77faece0ea7f7158948f2eaae7bbb7c80a8f63ae30b01236c2923cf89bb3719c33aeb150c715ea4fe4e86e37dcf06bed42fb6
+"date-fns@npm:^4.1.0, date-fns@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "date-fns@npm:4.4.0"
+  checksum: 10c0/988f0a13db183f5dfc85c36bbb6847a9c135a9225888bbea4005876ec15539a8613c21a07370a4e7ea543918d5a1cafb423c528b42cdbbde5fdfddb178126b21
   languageName: node
   linkType: hard
 
@@ -9130,10 +9160,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:^5.2.2":
-  version: 5.2.2
-  resolution: "diff@npm:5.2.2"
-  checksum: 10c0/52da594c54e9033423da26984b1449ae6accd782d5afc4431c9a192a8507ddc83120fe8f925d7220b9da5b5963c7b6f5e46add3660a00cb36df7a13420a09d4b
+"diff@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "diff@npm:9.0.0"
+  checksum: 10c0/a971cc88f66071a33bd3942db2f51b57d484e9856265ae45cf44fb28ab2fde91f132d9c26d8be0fb6082d2be94d29e1295c1adb251b7461935d6a2dd304cd161
   languageName: node
   linkType: hard
 
@@ -13989,7 +14019,7 @@ __metadata:
     "@emotion/is-prop-valid": "npm:^1.4.0"
     "@faker-js/faker": "npm:^10.6.0"
     "@fast-csv/parse": "npm:^5.0.8"
-    "@firecrawl/pdf-inspector": "npm:^1.11.2"
+    "@firecrawl/pdf-inspector": "npm:^1.25.2"
     "@fortawesome/fontawesome-svg-core": "npm:^7.3.1"
     "@fortawesome/free-brands-svg-icons": "npm:^7.3.1"
     "@fortawesome/free-solid-svg-icons": "npm:^7.3.1"
@@ -14036,7 +14066,6 @@ __metadata:
     "@tanstack/react-table": "npm:^8.21.3"
     "@tanstack/react-virtual": "npm:^3.14.26"
     "@types/cookie": "npm:0.6.0"
-    "@types/diff": "npm:^5.0.9"
     "@types/escape-html": "npm:^1.0.4"
     "@types/express-useragent": "npm:^1.0.5"
     "@types/formidable": "npm:^3.5.1"
@@ -14094,9 +14123,9 @@ __metadata:
     cookie: "npm:^0.7.2"
     copy-to-clipboard: "npm:^3.3.3"
     core-js: "npm:^3.51.0"
-    date-fns: "npm:^3.6.0"
+    date-fns: "npm:^4.4.0"
     dd-trace: "npm:^5.131.1"
-    diff: "npm:^5.2.2"
+    diff: "npm:^9.0.0"
     discord-api-types: "npm:^0.38.48"
     email-providers: "npm:^2.27.0"
     emoji-regex: "npm:^10.6.0"
@@ -14198,7 +14227,7 @@ __metadata:
     react: "npm:^19.3.1"
     react-avatar-editor: "npm:^15.1.0"
     react-colorful: "npm:^5.8.1"
-    react-day-picker: "npm:^8.10.2"
+    react-day-picker: "npm:^10.0.2"
     react-dom: "npm:^19.3.1"
     react-dropzone: "npm:^20.1.4"
     react-hook-form: "npm:^7.85.0"
@@ -14238,7 +14267,7 @@ __metadata:
     umzug: "npm:^3.8.3"
     unplugin-swc: "npm:^1.6.0"
     utility-types: "npm:^3.11.0"
-    uuid: "npm:^11.1.1"
+    uuid: "npm:^14.0.3"
     validator: "npm:13.15.35"
     vaul: "npm:^1.1.2"
     vite: "npm:^8.3.5"
@@ -15592,13 +15621,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:^8.10.2":
-  version: 8.10.2
-  resolution: "react-day-picker@npm:8.10.2"
+"react-day-picker@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "react-day-picker@npm:10.0.2"
+  dependencies:
+    "@date-fns/tz": "npm:^1.4.1"
+    date-fns: "npm:^4.1.0"
   peerDependencies:
-    date-fns: ^2.28.0 || ^3.0.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/701fe6dc0cc2de1430ddbf976c3a9e1f00b8b9970f1d11364047238d34e5f60f8089f505c8d9ec77faeef861b06a3b7b8ed6cc5d11d454abe46fe6b3a46270eb
+    "@types/react": ">=16.8.0"
+    react: ">=16.8.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/3baa75fa21625357656b15425384b21729796c0ae5b2e638d4e7a08f01c3d31db051a1fb21da784f87862ce917383fddfe713164718b3899cc7b47314e46f4ec
   languageName: node
   linkType: hard
 
@@ -18577,6 +18612,15 @@ __metadata:
   bin:
     uuid: dist/esm/bin/uuid
   checksum: 10c0/9e3af58eba872ece5a5e76f4773a94fc78a0ef2c2444c38dbe6b42f41dadf76c01850fd783604f27986f6195e6286aef064d45987d401b2a33127b98ddf7c0c5
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^14.0.3":
+  version: 14.0.3
+  resolution: "uuid@npm:14.0.3"
+  bin:
+    uuid: dist-node/bin/uuid
+  checksum: 10c0/e56e610ae3bd1ca099244e01ee5eff502675ede4601d971b80fff993ad97236c80197340113f759e6ead501ee6a8d52648f6deef1332ce9f192c4720f4891f62
   languageName: node
   linkType: hard
 
